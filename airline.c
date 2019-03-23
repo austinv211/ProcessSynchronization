@@ -21,74 +21,143 @@ int PCP = 0;
 //define semaphors to work with
 sem_t baggageCheck, securityCheck, flightAttendantCheck, finished;
 
+//flight routine to be performed by the flight attendant threads
 void* flightRoutine(void* arg) {
+
+    // loop through, while the number of passengers processed by the flight attendants is less than the num passengers
     while (PCF < numPassengers) {
+        //wait for the security routine to have a passenger ready
         sem_wait(&flightAttendantCheck);
-        if (PCF <= PCS) {
-            pthread_mutex_lock(&printer);
-            PCF++;
-            int i = PCF;
-            printf("Passenger #%d has now been seated.\n", i);
-            pthread_mutex_unlock(&printer);
-        }
+
+        //lock the printer mutex to prevent printing and incrementing problems
+        pthread_mutex_lock(&printer);
+
+        //increase the count of flight attendant processed passengers
+        PCF++;
+
+        //set the integer to be printed to PCF
+        int i = PCF;
+
+        //print the step
+        printf("Passenger #%d has now been seated.\n", i);
+
+        //unlock the printer mutex
+        pthread_mutex_unlock(&printer);
+        
     }
 
+    //post to the finished mutex to signify that all passengers have been seated
     sem_post(&finished);
+
+    //return null as the end of the routine
     return NULL;
 }
 
+
+//routine that the security check threads perform
 void* securityRoutine(void* arg) {
+
+    // loop while the number of passengers processed by security is less than the number of passengers
     while (PCS < numPassengers) {
+
+        //wait for the baggage checkers to have a passenger ready
         sem_wait(&securityCheck);
+
+        //lock the printer mutex to prevent issues with printing and incrementing
         pthread_mutex_lock(&printer);
+
+        //increment the count processed by security
         PCS++;
+
+        //set the digit to be printed to PCS
         int i = PCS;
+
+        //print the step
         printf("Passenger #%d waiting for security screening.\n", i);
+        
+        //unlock the printer mutex
         pthread_mutex_unlock(&printer);
+
+        //let the flight attendant know that a passenger is ready to get seated on the plane
         sem_post(&flightAttendantCheck);
     }
-
+    
+    //return NULL as the end of the routine
     return NULL;
 }
 
+//routine for the baggage checker threads to perform
 void* baggageRoutine(void* arg) {
 
+    //loop while the number of passengers baggage checked is less than the number of passengers
     while (PCB < numPassengers) {
+
+        //wait for the passenger threads to let the baggage checkers know they can start checking baggage
         sem_wait(&baggageCheck);
+
+        //lock the printer mutex to prevent issues with printing and incrementing
         pthread_mutex_lock(&printer);
+
+        //increase the passenger count processed by baggage check
         PCB++;
+
+        //set i to be the number processed by baggage check
         int i = PCB;
+
+        //print the step
         printf("Passenger #%d waiting for bag to be checked.\n", i);
+
+        //unlock the printer mutex
         pthread_mutex_unlock(&printer);
+
+        //let the security check know that a passenger is ready to get security screened
         sem_post(&securityCheck);
     }
 
+    //return NULL as the end of the routine
     return NULL;
 }
 
+//passenger routine that the passenger threads perform
 void* passengerRoutine(void* arg) {
+
+    //lock the printer mutex
     pthread_mutex_lock(&printer);
+
+    //increase the count of passengers processed by the passenger threads
     PCP++;
+
+    //set the i to be count of passengers processed
     int i = PCP;
+
+    //print the step
     printf("Passenger #%d has arrived at the terminal\n", i);
+
+    //unlock the printer mutex
     pthread_mutex_unlock(&printer);
-    //increas the semaphor
+
+    //increase the semaphor to let baggage check know a passenger is ready
     sem_post(&baggageCheck);
 
+    //return NULL as the end of the routine
     return NULL;  
 }
 
 int main(int argc, char* argv[]) {
+
+    //get the number of args, and exit if incorrect
     if (argc != 5) {
         fprintf(stderr, "Incorrect number of args.\n");
         return 1;
     }
 
+    //get the number of threads using the commandline args and atoi
     numPassengers = atoi(argv[1]);
     numBaggageCheckers = atoi(argv[2]);
     numSecurityScreeners = atoi(argv[3]);
     numFlightAttendants = atoi(argv[4]);
 
+    //print the initial counts to the screen
     printf("Number of Passengers: %d\n", numPassengers);
     printf("Number of Baggage Checker: %d\n", numBaggageCheckers);
     printf("Number of Security Screeners: %d\n", numSecurityScreeners);
@@ -97,7 +166,7 @@ int main(int argc, char* argv[]) {
      numPassengers + numBaggageCheckers + numSecurityScreeners + numFlightAttendants);
     
 
-    //initialize semaphors
+    //initialize semaphors, threads will increment and decrement for timing
     sem_init(&baggageCheck, 0, 0);
     sem_init(&securityCheck, 0, 0);
     sem_init(&flightAttendantCheck, 0, 0);
@@ -111,6 +180,7 @@ int main(int argc, char* argv[]) {
 
     //create our baggage checkers
     for (int i = 0; i < numBaggageCheckers; i++) {
+
         pthread_create(&baggageCheckThreads[i], NULL, baggageRoutine, NULL);
     }
 
@@ -131,15 +201,19 @@ int main(int argc, char* argv[]) {
 
     //join the passenger threads
     for (int i = 0; i < numPassengers; i++) {
+
         pthread_join(passengerThreads[i], NULL);
     }
 
+    //wait till we are done seating passengers
     sem_wait(&finished);
 
+    //destroy the semaphors
     sem_destroy(&baggageCheck);
     sem_destroy(&securityCheck);
     sem_destroy(&flightAttendantCheck);
 
+    //return 0 for all is well
     return 0;
     
 }
