@@ -151,11 +151,38 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    //get the number of threads using the commandline args and atoi
-    numPassengers = atoi(argv[1]);
-    numBaggageCheckers = atoi(argv[2]);
-    numSecurityScreeners = atoi(argv[3]);
-    numFlightAttendants = atoi(argv[4]);
+    //get the number of threads using the commandline args and strtol, with error handling
+    for (int i = 1; i < 5; i++) {
+        char *end;
+        long repLong = strtol(argv[i], &end, 10);
+
+        if (end == argv[i]) {
+            fprintf(stderr, "Arg provided for arg # %d is not a valid decimal number\n", i);
+            return 1;
+        }
+        else if(*end != '\0') {
+            fprintf(stderr, "Invalid characters in arg # %d for numPassengers.\n", i);
+            return 1;
+        }
+            
+        switch (i)
+        {
+            case 1:
+                numPassengers = (int)repLong;
+                break;
+            case 2:
+                numBaggageCheckers = (int)repLong;
+                break;
+            case 3:
+                numSecurityScreeners = (int)repLong;
+                break;
+            case 4:
+                numFlightAttendants = (int)repLong;
+                break;                  
+            default:
+                break;
+        }
+    }
 
     //print the initial counts to the screen
     printf("Number of Passengers: %d\n", numPassengers);
