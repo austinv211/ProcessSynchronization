@@ -17,6 +17,11 @@
 - makefile
   - Description: makefile for the contents of the zip
 
+- testCode.sh
+  - shell code to test Code for project
+  - should make executable by running make, if needed to make shell script executable run: chmod a+rx ./testCode.sh
+  - code will be tested part by part, asking the user to press enter to jump to the next section
+
 # Output Files Created by Makefile
 - boundedBuffer
   - syntax: ./boundedBuffer
