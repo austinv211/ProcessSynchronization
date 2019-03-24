@@ -42,7 +42,21 @@ int main(int argc, char *argv[])
         return 1; 
     }
     
-    int daysWanted = stoi(argv[1]);
+    //get the integer from the commandline argument
+    int daysWanted;
+
+    try {
+        daysWanted = stoi(argv[1]);
+    }
+    catch(std::invalid_argument &e) {
+        cerr << "Invalid arg provided. Command line arg must be an int.\n";
+        return 1;
+    }
+    catch(std::out_of_range &e) {
+        cerr << "Arg provided results out of range, please provide a valid int.\n";
+        return 1;
+    }
+    
     //Set value for semaphore(s)
     sem_init(&mother, 0, 1);   //Set to 1 since all children are sleeping
     sem_init(&father, 0, 0);   //Set to zero since no child has taken a bath
