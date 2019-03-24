@@ -91,6 +91,10 @@ void* motherWork(void* arg)
             children[i].tuckedIn = false;
         }  
         
+
+        //lock the mutex while printing
+        pthread_mutex_lock(&mutex);
+
         //Perform Task(s)
         cout << "Day " << day + 1 << "...\n";
         cout << "Mother awakes...\n";
@@ -99,7 +103,12 @@ void* motherWork(void* arg)
         sendToSchool(children);
         feedDinner(children);
         bathChild(children);
+
+        //print that the mother is going to sleep
         cout << "Mother is going to sleep...\n";
+
+        //unlock the mutex
+        pthread_mutex_unlock(&mutex);
     }
 }
 
@@ -112,6 +121,10 @@ void* fatherWork(void* arg)
     while(day != daysRequested){
 
         sem_wait(&father);
+
+        //lock the mutex to help with printing and incrementing
+        pthread_mutex_lock(&mutex);
+
         cout << "Father is awake...\n";
 
         //Perform task(s)
@@ -120,8 +133,13 @@ void* fatherWork(void* arg)
         //Add to day
         day++;
 
-        //Signal Mother
+        //print that the father is going to sleep
         cout << "Father is going to Sleep...\n";
+
+        //unlock the mutex
+        pthread_mutex_unlock(&mutex);
+
+        //signal mother
         sem_post(&mother);
     }
 }
