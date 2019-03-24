@@ -4,7 +4,8 @@
 - boundedBuffer.cpp 
   - Description: bounded buffer problem #1 implemented in C++
   - Observation: Works effectively as described in problem documentation, mutex's are crucially important when adding and removing from the buffer, since array errors can be caused by race conditions
-  
+
+- README.md is for the github repo, can ignore
 
 - mh.cpp
   - Description: implementation of problem #2 in C++

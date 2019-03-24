@@ -4,7 +4,8 @@
 - boundedBuffer.cpp 
   - Description: bounded buffer problem #1 implemented in C++
   - Observation: Works effectively as described in problem documentation, mutex's are crucially important when adding and removing from the buffer, since array errors can be caused by race conditions
-  
+
+- README.md is for the github repo, can ignore
 
 - mh.cpp
   - Description: implementation of problem #2 in C++
@@ -16,6 +17,11 @@
 
 - makefile
   - Description: makefile for the contents of the zip
+
+- testCode.sh
+  - shell code to test Code for project
+  - should make executable by running make, if needed to make shell script executable run: chmod a+rx ./testCode.sh
+  - code will be tested part by part, asking the user to press enter to jump to the next section
 
 # Output Files Created by Makefile
 - boundedBuffer
